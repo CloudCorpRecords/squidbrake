@@ -71,7 +71,8 @@ def test_connect_all_and_undo(tmp_path, monkeypatch, capsys):
 
     connect.main(["all", "--url", URL, "--key", KEY, "--yes"])
     claude = json.loads((home / ".claude" / "settings.json").read_text(encoding="utf-8"))
-    assert KEY in json.dumps(claude["hooks"]["PreToolUse"])
+    assert KEY not in json.dumps(claude["hooks"]["PreToolUse"]) and URL in json.dumps(claude["hooks"]["PreToolUse"])
+    assert connect.offline.load_key(URL) == KEY          # in a file only this user reads, not the agent's settings
     assert "agent_hook.py" in (home / ".cursor" / "hooks.json").read_text(encoding="utf-8")
     assert "agent_hook.py" in (home / ".codex" / "hooks.json").read_text(encoding="utf-8")
     assert not (home / ".gemini").exists()                                 # not installed: left alone
@@ -84,6 +85,15 @@ def test_connect_all_and_undo(tmp_path, monkeypatch, capsys):
     assert json.loads(mcp.read_text(encoding="utf-8")) == original
     assert "hooks" not in json.loads((home / ".claude" / "settings.json").read_text(encoding="utf-8"))
     assert not (home / ".codex" / "hooks.json").exists()
+
+
+def test_connect_all_remove_does_not_create_missing_cursor_config(tmp_path, monkeypatch):
+    home = _home(tmp_path, monkeypatch)
+    monkeypatch.setattr(connect.shutil, "which", lambda name: None)
+
+    connect.main(["all", "--remove", "--yes"])
+
+    assert not (home / ".cursor").exists()
 
 
 def _fake_codex(tmp_path, monkeypatch, trust):

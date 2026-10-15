@@ -44,7 +44,7 @@ check (`after_untrusted`) only looks at actions that send something out, and a f
 sees "the agent wants to change its MCP servers", not "the agent wants to add a server that a Slack message from
 outside asked for". The `after_untrusted_setup_edit` check (issues [#74](https://github.com/batrapulkit/squidbrake/issues/74),
 follow up to [#37](https://github.com/batrapulkit/squidbrake/issues/37)) closes that gap: when a setup change held by
-the guard-rail rule follows a read of outside content in the same conversation, the held request carries a warning
+the setup rule follows a read of outside content in the same conversation, the held request carries a warning
 naming which content came first.
 
 ## Edge cases
